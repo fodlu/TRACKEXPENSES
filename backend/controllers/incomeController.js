@@ -36,7 +36,7 @@ export async function addIncome(req, res) {
 }
 
 // to get income
-export async function ggetAllIncome(req, res) {
+export async function getAllIncome(req, res) {
 	const userId = req.user.id;
 	try {
 		const income = (await incomeModel.find({ userId })).toSorted({ date: -1 });

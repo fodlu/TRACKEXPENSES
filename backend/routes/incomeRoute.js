@@ -1,16 +1,16 @@
 import express from 'express';
 import authMiddleware from '../middleware/auth.js';
-import { addIncome, deleteIncome, downloadIncomeExcel, getIncomeOverview, ggetAllIncome, updateIncome } from '../controllers/incomeController.js';
+import { addIncome, deleteIncome, downloadIncomeExcel, getAllIncome, getIncomeOverview, updateIncome } from '../controllers/incomeController.js';
 
 const incomeRouter = express.Router();
 
 incomeRouter.post('/add', authMiddleware, addIncome)
-incomeRouter.get('/get', authMiddleware, ggetAllIncome)
+incomeRouter.get('/get', authMiddleware, getAllIncome)
 
-incomeRouter.put('/update/:id', authMiddleware, updateIncome)
+incomeRouter.get('/overview', authMiddleware, getIncomeOverview)
 incomeRouter.get('/downloadexcel', authMiddleware, downloadIncomeExcel)
 
 incomeRouter.delete('/delete/:id', authMiddleware, deleteIncome)
-incomeRouter.get('/overview', authMiddleware, getIncomeOverview)
+incomeRouter.put('/update/:id', authMiddleware, updateIncome)
 
 export default incomeRouter;
