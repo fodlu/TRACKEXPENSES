@@ -132,7 +132,7 @@ export async function downloadExpenseExcel(req, res) {
         console.error(error);
         return res.status(500).json({
             success: false,
-            message: "Server error"
+            message: "Server error this time"
         })
     }
 }
