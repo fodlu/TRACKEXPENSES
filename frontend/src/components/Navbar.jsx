@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { navbarStyles } from "../assets/dummyStyles";
 import img1 from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +11,6 @@ const Navbar = ({ user: propUser, onLogout }) => {
 	const navigate = useNavigate();
 	const menuRef = useRef();
 	const [menuOpen, setMenuOpen] = useState(false);
-    // const [user, setuser] = useState(null)
 
 	const user = propUser || {
 		name: "",
