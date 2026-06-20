@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import {Navigate, Route, Routes, useNavigate} from 'react-router-dom'
+import { useState } from 'react'
+import {Route, Routes, useNavigate} from 'react-router-dom'
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 
