@@ -9,7 +9,7 @@ userRouter.post('/login', loginUser)
 
 // protected routes
 userRouter.get('/me', authMiddleware, getCurrentUser)
-userRouter.put('/profile',authMiddleware, updateProfile)
-userRouter.put('/password',authMiddleware, updatePassword)
+userRouter.put('/profile', authMiddleware, updateProfile)
+userRouter.put('/password', authMiddleware, updatePassword)
 
 export default userRouter;
