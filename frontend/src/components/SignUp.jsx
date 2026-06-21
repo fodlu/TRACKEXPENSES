@@ -19,7 +19,7 @@ const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 		if (!token) return;
 
 		const res = await axios.get(`${API_URL}/api/user/me`, {
-			header: { Authorization: `Bearer ${token}` },
+			headers: { Authorization: `Bearer ${token}` },
 		});
 		return res.data;
 	};

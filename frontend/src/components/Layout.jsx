@@ -83,7 +83,7 @@ const Layout = ({ onLogout, user }) => {
 	const fetchTransactions = async () => {
 		try {
 			setLoading(true);
-			const token = localStorage.getItem("token");
+			const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 			const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
 			const [incomeRes, expenseRes] = await Promise.all([

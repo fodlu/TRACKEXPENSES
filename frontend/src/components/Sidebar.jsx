@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { sidebarStyles as s, cn } from "../assets/dummyStyles";
-import { AnimatePresence, motion } from "framer-motion";
+// import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react"
 import {
 	ArrowDown,
 	ArrowUp,
