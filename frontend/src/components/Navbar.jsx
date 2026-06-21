@@ -11,6 +11,7 @@ const Navbar = ({ user: propUser, onLogout }) => {
 	const navigate = useNavigate();
 	const menuRef = useRef();
 	const [menuOpen, setMenuOpen] = useState(false);
+    const [_, setUser] = useState(null)
 
 	const user = propUser || {
 		name: "",

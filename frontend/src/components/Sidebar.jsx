@@ -206,7 +206,8 @@ const Sidebar = ({ user, isCollapsed, setIsCollapsed }) => {
 						className={s.mobileOverlay}
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}>
+						exit={{ opacity: 0 }}
+					>
 						<motion.div
 							className={s.mobileBackdrop}
 							onClick={() => setMobileOpen(false)}
