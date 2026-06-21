@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { signupStyles } from "../assets/dummyStyles";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import axios from "axios";
 
 const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 	const [name, setName] = useState("");
@@ -63,7 +64,7 @@ const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 		setIsLoading(true);
 		try {
 			const res = await axios.post(
-				`${API_URL}/api/user.register`,
+				`${API_URL}/api/user/register`,
 				{ name, email, password },
 				{ headers: { "Content-Type": "application/json" } },
 			);

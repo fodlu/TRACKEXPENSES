@@ -54,7 +54,7 @@ const App = () => {
 		navigate("/");
 	};
 
-  const handleSignup = (userData, remember = false, tokenFromApi = null) => {
+	const handleSignup = (userData, remember = false, tokenFromApi = null) => {
 		persistAuth(userData, tokenFromApi, remember);
 		navigate("/");
 	};
@@ -63,7 +63,7 @@ const App = () => {
 		<>
 			<Routes>
 				<Route path='/login' element={<Login />} onLogin={handleLogin} />
-        <Route path="/signup" element={<SignUp />} onSignup={handleSignup} />
+				<Route path='/signup' element={<SignUp />} onSignup={handleSignup} />
 
 				<Route element={<Layout user={user} onLogout={handleLogout} />}>
 					<Route element={<Dashboard />} path='/' />
