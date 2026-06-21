@@ -154,7 +154,7 @@ const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									className={`${signupStyles.input} ${
-										errors.name ? "border-e-red-300" : "border-gray-200"
+										errors.name ? "border-red-300" : "border-gray-200"
 									}`}
 									placeholder='John Doe'
 								/>
@@ -180,7 +180,7 @@ const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
 									className={`${signupStyles.input} ${
-										errors.name ? "border-e-red-300" : "border-gray-200"
+										errors.name ? "border-red-300" : "border-gray-200"
 									}`}
 									placeholder='your@example.com'
 								/>
@@ -206,7 +206,7 @@ const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									className={`${signupStyles.passwordInput} ${
-										errors.password ? "border-e-red-300" : "border-gray-200"
+										errors.password ? "border-red-300" : "border-gray-200"
 									}`}
 									placeholder='●●●●●●●●'
 								/>
