@@ -62,7 +62,7 @@ const App = () => {
 	return (
 		<>
 			<Routes>
-				<Route path='/login' element={<Login  onLogin={handleLogin}  />}/>
+				<Route path='/login' element={<Login onLogin={handleLogin}  />}/>
 				<Route path='/signup' element={<SignUp onSignup={handleSignup} />}/>
 
 				<Route element={<Layout user={user} onLogout={handleLogout} />}>
