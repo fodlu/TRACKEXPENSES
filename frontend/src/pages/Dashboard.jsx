@@ -11,7 +11,14 @@ import {
 	EXPENSE_CATEGORY_ICONS,
 } from "../assets/color";
 import { useOutletContext } from "react-router-dom";
-import { calculateData } from "../components/Helpers";
+// import { calculateData } from "../components/Helpers";
+
+import {
+	calculateData,
+	getPreviousTimeFrameRange,
+	getTimeFrameRange,
+} from "../components/Helpers";
+
 import axios from "axios";
 import { Plus } from "lucide-react";
 
@@ -19,7 +26,10 @@ const API_BASE = "http://localhost:4000/api";
 
 const getAuthHeader = () => {
 	const token =
-		localStorage.getItem("token") || localStorage.getItem("authToken");
+		localStorage.getItem("token") ||
+		sessionStorage.getItem("token") ||
+		localStorage.getItem("authToken") ||
+		sessionStorage.getItem("authToken");
 	return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -38,7 +48,7 @@ function toIsoWithClientTime(dateValue) {
 
 	try {
 		return new Date(dateValue).toISOString();
-	} catch (err) {
+	} catch {
 		return new Date().toISOString();
 	}
 }
@@ -48,7 +58,7 @@ const Dashboard = () => {
 	const {
 		transactions: outletTransactions = [],
 		timeFrame = "monthly",
-		setTimeFrame = () => {},
+		// setTimeFrame = () => {},
 		refreshTransactions,
 	} = useOutletContext();
 
@@ -244,9 +254,7 @@ const Dashboard = () => {
 		try {
 			setLoading(true);
 			const res = await axios.get(`${API_BASE}/dashboard`, {
-				headers: {
-					Authorization: getAuthHeader(),
-				},
+				headers: getAuthHeader(),
 			});
 
 			if (!res?.data?.success) {
@@ -325,67 +333,85 @@ const Dashboard = () => {
 				err?.response || err.message || err,
 			);
 		} finally {
-      setLoading(false)
-    }
+			setLoading(false);
+		}
 	};
 
-  useEffect(()=> {
-    fecthDashboardOverview()
-  }, [])
+	useEffect(() => {
+		fecthDashboardOverview();
+	}, []);
 
-  // add or edit or delete transactions
-  const handleAddTransaction = async () => {
-    if(!newTransaction.description || !newTransaction.amount) return;
+	// add or edit or delete transactions
+	const handleAddTransaction = async () => {
+		// if(!newTransaction.description || !newTransaction.amount) return;
+		const amount = Number(newTransaction.amount);
+		if (
+			!newTransaction.description.trim() ||
+			!Number.isFinite(amount) ||
+			amount <= 0
+		)
+			return;
 
-    const payload = {
-      date: toIsoWithClientTime(newTransaction.date),
-      description: newTransaction.description,
-      amount: parseFloat(newTransaction.amount),
-      category: newTransaction.category
-    }
+		const payload = {
+			date: toIsoWithClientTime(newTransaction.date),
+			description: newTransaction.description.trim(),
+			amount,
+			category: newTransaction.category,
+		};
 
-    try {
-      setLoading(true)
-      if(newTransaction.type === "income"){
-        await axios.post(`${API_BASE}/income/add`, payload, {headers: getAuthHeader()})
-      } else {
-        await axios.post(`${API_BASE}/expense/add`, payload, {headers: getAuthHeader()})
-      }
-      await refreshTransactions();
-      await fecthDashboardOverview();
-      setNewTransaction({
-        date: new Date().toISOString().split('T')[0],
-        description: '',
-        amount: '',
-        type: 'expense',
-        category: "Food"
-      });
-      setShowModal(false)
-    } catch (error) {
-      console.error("Failed to add the transactions: ", error?.response || error.message || error);
-    } finally {
-      setLoading(false)
-    }
-  }
+		try {
+			setLoading(true);
+			if (newTransaction.type === "income") {
+				await axios.post(`${API_BASE}/income/add`, payload, {
+					headers: getAuthHeader(),
+				});
+			} else {
+				await axios.post(`${API_BASE}/expense/add`, payload, {
+					headers: getAuthHeader(),
+				});
+			}
+			await refreshTransactions();
+			await fecthDashboardOverview();
+			setNewTransaction({
+				date: new Date().toISOString().split("T")[0],
+				description: "",
+				amount: "",
+				type: "expense",
+				category: "Food",
+			});
+			setShowModal(false);
+		} catch (error) {
+			console.error(
+				"Failed to add the transactions: ",
+				error?.response || error.message || error,
+			);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	return (
-    <div className={dashboardStyles.container}>
-      {/* header */}
-      <div className={dashboardStyles.headerContainer}>
-        <div className={dashboardStyles.headerContent}>
-          <div>
-            <h1 className={dashboardStyles.headerTitle}>Finance Dashboard</h1>
-            <p className={dashboardStyles.headerSubtitle}>Track your income and expenses</p>
-          </div>
+		<div className={dashboardStyles.container}>
+			{/* header */}
+			<div className={dashboardStyles.headerContainer}>
+				<div className={dashboardStyles.headerContent}>
+					<div>
+						<h1 className={dashboardStyles.headerTitle}>Finance Dashboard</h1>
+						<p className={dashboardStyles.headerSubtitle}>
+							Track your income and expenses
+						</p>
+					</div>
 
-          <button className={dashboardStyles.addButton} onClick={()=> setShowModal(true)}>
-            <Plus size={20} />
-            Add Transactions
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+					<button
+						className={dashboardStyles.addButton}
+						onClick={() => setShowModal(true)}>
+						<Plus size={20} />
+						Add Transactions
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default Dashboard;
