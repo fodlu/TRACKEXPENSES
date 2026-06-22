@@ -6,9 +6,10 @@ import jwt from "jsonwebtoken";
 const JWT_TOKEN = "your_jwt_secret_token";
 const TOKEN_EXPIRES = "24h";
 
-const createToken = (id = jwt.sign({ id }, JWT_TOKEN, {
-	expiresIn: TOKEN_EXPIRES,
-}));
+const createToken = (id) =>
+	jwt.sign({ id }, JWT_TOKEN, {
+		expiresIn: TOKEN_EXPIRES,
+	});
 
 // register a user
 export async function registerUser(req, res) {

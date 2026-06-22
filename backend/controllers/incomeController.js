@@ -118,7 +118,7 @@ export async function downloadIncomeExcel(req, res) {
             Description: inc.description,
             Amount: inc.amount,
             Category: inc.category,
-            Date: new.Date(inc.date).toLocaleDateString()
+            Date: new Date(inc.date).toLocaleDateString()
         }))
 
         const worksheet = XLSX.utils.json_to_sheet(plainData);

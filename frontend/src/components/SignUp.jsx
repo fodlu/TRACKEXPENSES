@@ -226,7 +226,7 @@ const SignUp = ({ API_URL = "http://localhost:4000", onSignup }) => {
 							)}
 						</div>
 
-						<div className={signupStyles.checkbox}>
+						<div className={signupStyles.checkboxContainer}>
 							<input
 								type='checkbox'
 								name='remember'

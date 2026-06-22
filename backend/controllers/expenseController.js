@@ -120,7 +120,7 @@ export async function downloadExpenseExcel(req, res) {
             Description: exp.description,
             Amount: exp.amount,
             Category: exp.category,
-            Date: new.Date(exp.date).toLocaleDateString()
+            Date: new Date(exp.date).toLocaleDateString()
         }))
 
         const worksheet = XLSX.utils.json_to_sheet(plainData);
