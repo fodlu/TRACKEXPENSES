@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	dashboardStyles,
 	trendStyles,
@@ -11,15 +11,44 @@ import {
 	EXPENSE_CATEGORY_ICONS,
 } from "../assets/color";
 import { useOutletContext } from "react-router-dom";
-import { calculateData } from "../components/Helpers";
+// import { calculateData } from "../components/Helpers";
+
+import {
+	calculateData,
+	getPreviousTimeFrameRange,
+	getTimeFrameRange,
+} from "../components/Helpers";
+
 import axios from "axios";
-import { Plus } from "lucide-react";
+import {
+	ArrowDown,
+	BarChart2,
+	ChevronDown,
+	ChevronUp,
+	DollarSign,
+	PieChartIcon,
+	TrendingUp as ProfitIcon,
+	PieChartIcon as PieChart,
+	PiggyBank,
+	Plus,
+	ShoppingCart,
+	TrendingDown,
+	TrendingUp,
+	Wallet,
+} from "lucide-react";
+import FinancialCard from "./FinancialCard";
+import GaugeCard from "../components/GaugeCard";
+import { Cell, Legend, ResponsiveContainer, Pie, Tooltip } from "recharts";
+import AddTransactionModal from "../components/Add";
 
 const API_BASE = "http://localhost:4000/api";
 
 const getAuthHeader = () => {
 	const token =
-		localStorage.getItem("token") || localStorage.getItem("authToken");
+		localStorage.getItem("token") ||
+		sessionStorage.getItem("token") ||
+		localStorage.getItem("authToken") ||
+		sessionStorage.getItem("authToken");
 	return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -38,7 +67,7 @@ function toIsoWithClientTime(dateValue) {
 
 	try {
 		return new Date(dateValue).toISOString();
-	} catch (err) {
+	} catch {
 		return new Date().toISOString();
 	}
 }
@@ -244,9 +273,7 @@ const Dashboard = () => {
 		try {
 			setLoading(true);
 			const res = await axios.get(`${API_BASE}/dashboard`, {
-				headers: {
-					Authorization: getAuthHeader(),
-				},
+				headers: getAuthHeader(),
 			});
 
 			if (!res?.data?.success) {
@@ -325,67 +352,422 @@ const Dashboard = () => {
 				err?.response || err.message || err,
 			);
 		} finally {
-      setLoading(false)
-    }
+			setLoading(false);
+		}
 	};
 
-  useEffect(()=> {
-    fecthDashboardOverview()
-  }, [])
+	useEffect(() => {
+		fecthDashboardOverview();
+	}, []);
 
-  // add or edit or delete transactions
-  const handleAddTransaction = async () => {
-    if(!newTransaction.description || !newTransaction.amount) return;
+	// add or edit or delete transactions
+	const handleAddTransaction = async () => {
+		// if(!newTransaction.description || !newTransaction.amount) return;
+		const amount = Number(newTransaction.amount);
+		if (
+			!newTransaction.description.trim() ||
+			!Number.isFinite(amount) ||
+			amount <= 0
+		)
+			return;
 
-    const payload = {
-      date: toIsoWithClientTime(newTransaction.date),
-      description: newTransaction.description,
-      amount: parseFloat(newTransaction.amount),
-      category: newTransaction.category
-    }
+		const payload = {
+			date: toIsoWithClientTime(newTransaction.date),
+			description: newTransaction.description.trim(),
+			amount,
+			category: newTransaction.category,
+		};
 
-    try {
-      setLoading(true)
-      if(newTransaction.type === "income"){
-        await axios.post(`${API_BASE}/income/add`, payload, {headers: getAuthHeader()})
-      } else {
-        await axios.post(`${API_BASE}/expense/add`, payload, {headers: getAuthHeader()})
-      }
-      await refreshTransactions();
-      await fecthDashboardOverview();
-      setNewTransaction({
-        date: new Date().toISOString().split('T')[0],
-        description: '',
-        amount: '',
-        type: 'expense',
-        category: "Food"
-      });
-      setShowModal(false)
-    } catch (error) {
-      console.error("Failed to add the transactions: ", error?.response || error.message || error);
-    } finally {
-      setLoading(false)
-    }
-  }
+		try {
+			setLoading(true);
+			if (newTransaction.type === "income") {
+				await axios.post(`${API_BASE}/income/add`, payload, {
+					headers: getAuthHeader(),
+				});
+			} else {
+				await axios.post(`${API_BASE}/expense/add`, payload, {
+					headers: getAuthHeader(),
+				});
+			}
+			await refreshTransactions();
+			await fecthDashboardOverview();
+			setNewTransaction({
+				date: new Date().toISOString().split("T")[0],
+				description: "",
+				amount: "",
+				type: "expense",
+				category: "Food",
+			});
+			setShowModal(false);
+		} catch (error) {
+			console.error(
+				"Failed to add the transactions: ",
+				error?.response || error.message || error,
+			);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	return (
-    <div className={dashboardStyles.container}>
-      {/* header */}
-      <div className={dashboardStyles.headerContainer}>
-        <div className={dashboardStyles.headerContent}>
-          <div>
-            <h1 className={dashboardStyles.headerTitle}>Finance Dashboard</h1>
-            <p className={dashboardStyles.headerSubtitle}>Track your income and expenses</p>
-          </div>
+		<div className={dashboardStyles.container}>
+			{/* header */}
+			<div className={dashboardStyles.headerContainer}>
+				<div className={dashboardStyles.headerContent}>
+					<div>
+						<h1 className={dashboardStyles.headerTitle}>Finance Dashboard</h1>
+						<p className={dashboardStyles.headerSubtitle}>
+							Track your income and expenses
+						</p>
+					</div>
 
-          <button className={dashboardStyles.addButton} onClick={()=> setShowModal(true)}>
-            <Plus size={20} />
-            Add Transactions
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+					<button
+						className={dashboardStyles.addButton}
+						onClick={() => setShowModal(true)}>
+						<Plus size={20} />
+						Add Transactions
+					</button>
+				</div>
+
+				<div className={dashboardStyles.timeFrameContainer}>
+					<div className={dashboardStyles.timeFrameWrapper}>
+						{["daily", "weekly", "monthly"].map((frame) => (
+							<button
+								key={frame}
+								onClick={() => setTimeFrame(frame)}
+								className={dashboardStyles.timeFrameButton(
+									timeFrame === frame,
+								)}>
+								{frame.charAt(0).toUpperCase() + frame.slice(1)}
+							</button>
+						))}
+					</div>
+				</div>
+			</div>
+
+			<div className={dashboardStyles.summaryGrid}>
+				<FinancialCard
+					icon={
+						<div className={dashboardStyles.walletIconContainer}>
+							<Wallet className='w-5 h-5 text-teal-600' />
+						</div>
+					}
+					label='Total Balance'
+					value={`$${Math.round(displayIncome - displayExpenses).toLocaleString()}`}
+					additionalContent={
+						<div className='flex items-center gap-2 mt-2 text-sm'>
+							<span className={dashboardStyles.balanceBadge}>
+								+${Math.round(displayIncome).toLocaleString()}
+							</span>
+
+							<span className={dashboardStyles.expenseBadge}>
+								-${Math.round(displayExpenses).toLocaleString()}
+							</span>
+						</div>
+					}
+				/>
+
+				<FinancialCard
+					icon={
+						<div className={dashboardStyles.arrowDownIconContainer}>
+							<ArrowDown className='w-5 h-5 text-orange-600' />
+						</div>
+					}
+					label={`${timeFrameRange.label} Expense`}
+					value={`$${Math.round(displayExpenses).toLocaleString()}`}
+					additionalContent={
+						<div
+							className={`mt-2 text-xs flex items-center gap-1 ${
+								expenseChange >= 0 ? trendStyles.positive : trendStyles.negative
+							}`}>
+							{expenseChange >= 0 ?
+								<TrendingUp className='w-4 h-4' />
+							:	<TrendingDown className='w-4 h-4' />}
+
+							<span className=''>
+								{Math.abs(expenseChange)}%{" "}
+								{expenseChange >= 0 ? "Increase" : "decrease"} from{" "}
+								{prevTimeFrameRange.label}
+							</span>
+						</div>
+					}
+				/>
+
+				<FinancialCard
+					icon={
+						<div className={dashboardStyles.piggyBankIconContainer}>
+							<PiggyBank className='w-5 h-5 text-cyan-600' />
+						</div>
+					}
+					label={`${timeFrameRange.label} Savings`}
+					value={`$${Math.round(displaySavings).toLocaleString()}`}
+					additionalContent={
+						<div className='mt-2 text-xs text-cyan-600 flex items-center gap-2'>
+							<div className='flex items-center gap-1'>
+								<BarChart2 className='w-4 h-4' />
+								<span className=''>
+									{displayIncome > 0 ?
+										Math.round((displaySavings / displayIncome) * 100)
+									:	0}
+									% of income
+								</span>
+							</div>
+
+							{typeof overviewMeta.savingsRate === "number" && (
+								<span
+									className={`px-2 py-1 rounded-full text-xs font-medium ${overviewMeta.savingsRate < 0 ? trendStyles.negative : trendStyles.positive}`}>
+									{overviewMeta.savingsRate}%
+								</span>
+							)}
+						</div>
+					}
+				/>
+			</div>
+
+			{/* Gauges */}
+			<div className={dashboardStyles.gaugeGrid}>
+				{gaugeData.map((gauge) => (
+					<GaugeCard
+						key={gauge.name}
+						gauge={gauge}
+						colorInfo={GAUGE_COLORS[gauge.name]}
+						timeFrameLabel={timeFrameRange.label}
+					/>
+				))}
+			</div>
+
+			{/* Expense distribution pie - Hidden on mobile */}
+			<div className={dashboardStyles.pieChartContainer}>
+				<div className={dashboardStyles.pieChartHeader}>
+					<h3 className={dashboardStyles.pieChartTitle}>
+						<PieChartIcon className='w-6 h-6 text-teal-500' />
+						Expense Distribution
+						<span className={dashboardStyles.listSubtitle}>
+							{" "}
+							({timeFrameRange.label})
+						</span>
+					</h3>
+				</div>
+
+				<div className={dashboardStyles.pieChartHeight}>
+					<ResponsiveContainer width='100%' height='100%'>
+						<PieChart className={chartStyles.pieChart}>
+							<Pie
+								data={financialOverviewData}
+								cx='50%'
+								cy='50%'
+								innerRadius={70}
+								outerRadius={110}
+								paddingAngle={2}
+								dataKey='value'
+								label={({ name, percent }) =>
+									`${name}: ${Math.round(percent * 100)}%`
+								}
+								labelLine={false}>
+								{financialOverviewData.map((entry, index) => (
+									<Cell
+										key={`cell-${index}`}
+										fill={COLORS[index % COLORS.length]}
+										stroke='#fff'
+										strokeWidth={2}
+									/>
+								))}
+							</Pie>
+							<Tooltip
+								formatter={(value) => [
+									`$${Math.round(value).toLocaleString()}`,
+									"Amount",
+								]}
+								contentStyle={dashboardStyles.tooltipContent}
+								itemStyle={dashboardStyles.tooltipItem}
+							/>
+							<Legend
+								layout='horizontal'
+								verticalAlign='bottom'
+								align='center'
+								formatter={(v) => (
+									<span className={dashboardStyles.legendText}>{v}</span>
+								)}
+								iconSize={10}
+								iconType='circle'
+								wrapperStyle={dashboardStyles.legendWrapper}
+							/>
+						</PieChart>
+					</ResponsiveContainer>
+				</div>
+			</div>
+
+			<div className={dashboardStyles.listsGrid}>
+				{/* Income Column */}
+				<div className={dashboardStyles.listContainer}>
+					<div className={dashboardStyles.listHeader}>
+						<h3 className={dashboardStyles.listTitle}>
+							<ProfitIcon className='w-6 h-6 text-green-500' /> Recent Income{" "}
+							<span className={dashboardStyles.listSubtitle}>
+								{" "}
+								({timeFrameRange.label})
+							</span>
+						</h3>
+						<span className={dashboardStyles.incomeCountBadge}>
+							{incomeListForDisplay.length} records
+						</span>
+					</div>
+
+					<div className={dashboardStyles.transactionList}>
+						{displayedIncome.map((transaction) => {
+							const IconComponent =
+								INCOME_CATEGORY_ICONS[transaction.category] ||
+								INCOME_CATEGORY_ICONS.Other;
+							return (
+								<div
+									key={transaction.id}
+									className={dashboardStyles.incomeTransactionItem}>
+									<div className={dashboardStyles.transactionContent}>
+										<div className={dashboardStyles.incomeIconContainer}>
+											{IconComponent}
+										</div>
+										<div>
+											<p className={dashboardStyles.transactionDescription}>
+												{transaction.description}
+											</p>
+											<p className={dashboardStyles.transactionCategory}>
+												{transaction.category}
+											</p>
+										</div>
+									</div>
+									<div className={dashboardStyles.transactionAmount}>
+										<p className={dashboardStyles.incomeAmount}>
+											+${Math.abs(transaction.amount).toLocaleString()}
+										</p>
+										<p className={dashboardStyles.transactionDate}>
+											{new Date(transaction.date).toLocaleDateString()}
+										</p>
+									</div>
+								</div>
+							);
+						})}
+
+						{incomeListForDisplay.length === 0 && (
+							<div className={dashboardStyles.emptyState}>
+								<div
+									className={dashboardStyles.emptyIconContainer("bg-green-50")}>
+									<DollarSign className='w-8 h-8 text-green-400' />
+								</div>
+								<p className={dashboardStyles.emptyText}>
+									No income transactions
+								</p>
+							</div>
+						)}
+
+						{incomeListForDisplay.length > 3 && (
+							<div className={dashboardStyles.viewAllContainer}>
+								<button
+									onClick={() => setShowAllIncome(!showAllIncome)}
+									className={dashboardStyles.viewAllButton}>
+									{showAllIncome ?
+										<>
+											<ChevronUp className='w-5 h-5' />
+											Show Less
+										</>
+									:	<>
+											<ChevronDown className='w-5 h-5' />
+											View All Income ({incomeListForDisplay.length})
+										</>
+									}
+								</button>
+							</div>
+						)}
+					</div>
+				</div>
+
+				{/* Expense Column */}
+				<div className={dashboardStyles.listContainer}>
+					<div className={dashboardStyles.listHeader}>
+						<h3 className='text-lg md:text-xl lg:text-xl xl:text-xl font-bold text-gray-800 md:mt-3 mt-3 flex items-center gap-3'>
+							<ArrowDown className='w-6 h-6 text-orange-500' /> Recent Expenses{" "}
+							<span className={dashboardStyles.listSubtitle}>
+								{" "}
+								({timeFrameRange.label})
+							</span>
+						</h3>
+						<span className={dashboardStyles.expenseCountBadge}>
+							{expenseListForDisplay.length} records
+						</span>
+					</div>
+
+					<div className={dashboardStyles.transactionList}>
+						{displayedExpense.map((transaction) => {
+							const IconComponent =
+								EXPENSE_CATEGORY_ICONS[transaction.category] ||
+								EXPENSE_CATEGORY_ICONS.Other;
+							return (
+								<div
+									key={transaction.id}
+									className={dashboardStyles.expenseTransactionItem}>
+									<div className={dashboardStyles.transactionContent}>
+										<div className={dashboardStyles.expenseIconContainer}>
+											{IconComponent}
+										</div>
+										<div>
+											<p className={dashboardStyles.transactionDescription}>
+												{transaction.description}
+											</p>
+											<p className={dashboardStyles.transactionCategory}>
+												{transaction.category}
+											</p>
+										</div>
+									</div>
+									<div className={dashboardStyles.transactionAmount}>
+										<p className={dashboardStyles.expenseAmount}>
+											-${Math.abs(transaction.amount).toLocaleString()}
+										</p>
+										<p className={dashboardStyles.transactionDate}>
+											{new Date(transaction.date).toLocaleDateString()}
+										</p>
+									</div>
+								</div>
+							);
+						})}
+
+						{expenseListForDisplay.length === 0 && (
+							<div className={dashboardStyles.emptyState}>
+								<div
+									className={dashboardStyles.emptyIconContainer(
+										"bg-orange-50",
+									)}>
+									<ShoppingCart className='w-8 h-8 text-orange-400' />
+								</div>
+								<p className={dashboardStyles.emptyText}>
+									No expense transactions
+								</p>
+							</div>
+						)}
+
+						{expenseListForDisplay.length > 3 && (
+							<div className={dashboardStyles.viewAllContainer}>
+								<button
+									onClick={() => setShowAllExpense(!showAllExpense)}
+									className={dashboardStyles.viewAllButton}>
+									{showAllExpense ?
+										<>
+											<ChevronUp className='w-5 h-5' />
+											Show Less
+										</>
+									:	<>
+											<ChevronDown className='w-5 h-5' />
+											View All Expenses ({expenseListForDisplay.length})
+										</>
+									}
+								</button>
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
+
+			<AddTransactionModal showModal={showModal} setShowModal={setShowModal} newTransaction={newTransaction} setNewTransaction={setNewTransaction} handleAddTransaction={handleAddTransaction} loading={loading} />
+		</div>
+	);
 };
 
 export default Dashboard;

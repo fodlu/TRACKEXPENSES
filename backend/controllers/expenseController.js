@@ -39,7 +39,7 @@ export async function addExpense(req, res) {
 export async function getAllExpense(req, res) {
 	const userId = req.user.id;
 	try {
-		const expense = (await expenseModel.find({ userId })).toSorted({
+		const expense = (await expenseModel.find({ userId })).sort({
 			date: -1,
 		});
 		res.json(expense);
