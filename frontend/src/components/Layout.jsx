@@ -517,7 +517,7 @@ const Layout = ({ onLogout, user }) => {
 							</div>
 						</div>
 
-						{/* spemding by category card */}
+						{/* spending by category card */}
 						<div className={styles.cards.base}>
 							<h3 className={styles.categories.title}>
 								<PieChart className={styles.categories.titleIcon} />

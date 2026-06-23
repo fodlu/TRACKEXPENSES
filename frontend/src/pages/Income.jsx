@@ -29,10 +29,11 @@ import TimeFrameSelector from "../components/TimeFrame";
 import { getTimeFrameRange, generateChartPoints } from "../components/Helpers";
 import { INCOME_COLORS, CATEGORY_ICONS_Inc } from "../assets/color";
 import { incomeStyles as styles } from "../assets/dummyStyles";
-import FinancialCard from "./FinancialCard";
+import FinancialCard from "../components/FinancialCard";
 
 const API_BASE = "http://localhost:4000/api";
 
+// help in converting date to ISO time
 function toIsoWithClientTime(dateValue) {
 	if (!dateValue) {
 		return new Date().toISOString();
@@ -47,11 +48,12 @@ function toIsoWithClientTime(dateValue) {
 
 	try {
 		return new Date(dateValue).toISOString();
-	} catch (err) {
+	} catch {
 		return new Date().toISOString();
 	}
 }
 
+// small component with the income chart
 const IncomeChart = ({ chartData, timeFrame, timeFrameRange }) => (
 	<div className={styles.chartContainer}>
 		<div className={styles.chartHeaderContainer}>
@@ -135,7 +137,7 @@ const IncomeChart = ({ chartData, timeFrame, timeFrameRange }) => (
 			</ResponsiveContainer>
 		</div>
 	</div>
-);
+); // for income chart
 
 const FilterSection = ({ filter, setFilter, handleExport }) => (
 	<div className={styles.filterContainer}>
@@ -196,6 +198,7 @@ const IncomePage = () => {
 		date: new Date().toISOString().split("T")[0],
 	});
 
+    // to get token from the localStorage
 	const getAuthHeaders = useCallback(() => {
 		const token =
 			localStorage.getItem("token") ||
@@ -214,6 +217,7 @@ const IncomePage = () => {
 		[timeFrame, timeFrameRange],
 	);
 
+    // function to check if the time is within range
 	const isDateInRange = useCallback((date, start, end) => {
 		const transactionDate = new Date(date);
 		const startDate = new Date(start);
@@ -232,7 +236,7 @@ const IncomePage = () => {
 				.filter((t) => t.type === "income")
 				.sort((a, b) => new Date(b.date) - new Date(a.date)),
 		[outletTransactions],
-	);
+	); // filter transactions coming from outletContext
 
 	const timeFrameTransactions = useMemo(
 		() =>
@@ -240,7 +244,7 @@ const IncomePage = () => {
 				isDateInRange(t.date, timeFrameRange.start, timeFrameRange.end),
 			),
 		[incomeTransactions, timeFrameRange, isDateInRange],
-	);
+	); // filter by time frame
 
 	const filteredTransactions = useMemo(() => {
 		if (filter === "all") return timeFrameTransactions;
@@ -279,6 +283,7 @@ const IncomePage = () => {
 		return data;
 	}, [filteredTransactions, chartPoints, timeFrame]);
 
+    // fetch the overview from the server side
 	const fetchOverview = useCallback(
 		async (range = timeFrame ?? "monthly") => {
 			try {
@@ -330,13 +335,14 @@ const IncomePage = () => {
 				)
 			:	0,
 		[overview.averageIncome, filteredTransactions],
-	);
+	); // uses the backend overview if available
 
 	const transactionsCount = useMemo(
 		() => overview.numberOfTransactions ?? filteredTransactions.length,
 		[overview.numberOfTransactions, filteredTransactions],
 	);
 
+    // to add an income
 	const handleAddTransaction = useCallback(async () => {
 		const amount = Number(newTransaction.amount);
 		if (
@@ -385,6 +391,7 @@ const IncomePage = () => {
 		timeFrame,
 	]);
 
+    // to update an income
 	const handleEditTransaction = useCallback(async () => {
 		const amount = Number(editForm.amount);
 		if (
@@ -429,6 +436,7 @@ const IncomePage = () => {
 		timeFrame,
 	]);
 
+    // to delete an income transaction
 	const handleDeleteTransaction = useCallback(
 		async (id) => {
 			if (!id) return;
@@ -454,6 +462,7 @@ const IncomePage = () => {
 		[getAuthHeaders, refreshTransactions, fetchOverview, timeFrame],
 	);
 
+    // to download the excel sheet
 	const handleExport = useCallback(async () => {
 		try {
 			const res = await axios.get(`${API_BASE}/income/downloadexcel`, {
