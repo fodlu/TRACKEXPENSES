@@ -3,6 +3,8 @@ import { profileStyles } from "../assets/dummyStyles";
 import Modal from "react-modal";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const BASE_URL = "http://localhost:4000/api";
 
@@ -66,52 +68,131 @@ const Profile = ({ user: onUpdateProfile, onLogout }) => {
 	const [passwordErrors, setPasswordErrors] = useState({});
 	const [loading, setLoading] = useState(false);
 
-    const getAuthToken = useCallback(()=> localStorage.getItem('token'), [])
+	const getAuthToken = useCallback(() => localStorage.getItem("token"), []);
 
-    // API request
-    const handleAPIrequest = useCallback(async (method, endpoint, data=null) => {
-        const token = getAuthToken();
-        if(!token) {
-            navigate('login');
-            return null;
-        }
+	// API request
+	const handleAPIrequest = useCallback(
+		async (method, endpoint, data = null) => {
+			const token = getAuthToken();
+			if (!token) {
+				navigate("login");
+				return null;
+			}
 
-        try {
-            setLoading(true);
-            const config = {
-                method,
-                url: `${BASE_URL}${endpoint}`,
-                headers: {Authorization: `Bearer ${token}`},
-            }
-            if(data) config.data = data;
-            const response = await axios(config);
-            return response.data;
-        } catch (error) {
-            console.log(`${method} request error: `, error)
-            if(error.response?.status === 401) {
-                navigate('/login')
-            }
-            throw error;
-        } finally {
-            setLoading(false)
-        }
-    }, [getAuthToken, navigate])
+			try {
+				setLoading(true);
+				const config = {
+					method,
+					url: `${BASE_URL}${endpoint}`,
+					headers: { Authorization: `Bearer ${token}` },
+				};
+				if (data) config.data = data;
+				const response = await axios(config);
+				return response.data;
+			} catch (error) {
+				console.log(`${method} request error: `, error);
+				if (error.response?.status === 401) {
+					navigate("/login");
+				}
+				throw error;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[getAuthToken, navigate],
+	);
 
-    // to fetch current user
-    useEffect(()=> {
-        const fetchUserData = async () => {
-            try {
-                const data = await handleAPIrequest('get', '/user/me');
-                if(data) {
-                    const userData = data.user || data;
-                    setUser(userData);
-                    setTempUser(userData)
-                }
-            } catch (error) {
-                toast.errror("Failed to load user data")
-            }
-        }
-    }, [])
+	// to fetch current user
+	useEffect(() => {
+		const fetchUserData = async () => {
+			try {
+				const data = await handleAPIrequest("get", "/user/me");
+				if (data) {
+					const userData = data.user || data;
+					setUser(userData);
+					setTempUser(userData);
+				}
+			} catch (error) {
+				toast.errror("Failed to load user data");
+			}
+		};
+		fetchUserData();
+	}, [handleAPIrequest]);
+
+	// input change
+	const handleInputChange = useCallback((e) => {
+		const { name, value } = e.target;
+		setTempUser((prev) => ({ ...prev, [name]: value }));
+	}, []);
+
+	const handlePasswordChange = useCallback((e) => {
+		const { name, value } = e.target;
+		setPasswordData((prev) => ({ ...prev, [name]: value }));
+		// Clear error for this field when user starts typing
+		setPasswordErrors((prev) => ({ ...prev, [name]: "" }));
+	}, []);
+
+	// to save profile
+	const handleSaveProfile = async () => {
+		try {
+			const data = await handleAPIrequest("put", "/user/profile", tempUser);
+			if (data) {
+				const updatedUser = data.user || data;
+				setUser(updatedUser);
+				setTempUser(updatedUser);
+				setEditMode(false);
+
+				onUpdateProfile?.(updatedUser);
+				toast.success("Profile updated successfully!");
+			}
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Failed to update profile");
+		}
+	};
+
+	const handleCancelEdit = useCallback(() => {
+		setTempUser(user);
+		setEditMode(false);
+	}, [user]);
+
+	// password validation
+	const validatePassword = useCallback(() => {
+		const errors = {};
+		if (!passwordData.current) errors.current = "Current password is required";
+		if (!passwordData.new) {
+			errors.new = "New password is required";
+		} else if (passwordData.new.length < 8) {
+			errors.new = "Password must be at least 8 characters";
+		}
+		if (passwordData.new !== passwordData.confirm) {
+			errors.confirm = "Passwords do not match";
+		}
+		setPasswordErrors(errors);
+		return Object.keys(errors).length === 0;
+	}, [passwordData]);
+
+	//   to change password
+	const handlePasswordSubmit = async (e) => {
+		e.preventDefault();
+		if (!validatePassword) return;
+
+		try {
+			await handleAPIrequest("put", "/user/password", {
+				currentPassword: passwordData.current,
+				newPassword: passwordData.new,
+			});
+
+			toast.success("Password changed successfully");
+			setShowPassword(false);
+			setPasswordData({ current: "", new: "", confirm: "" });
+			setPasswordErrors({});
+
+            // reset password visibility
+            setShowPassword({current: false, new: false, confirm: false})
+		} catch (error) {
+			toast.error(error.response?.data?.message || "Failed to update profile");
+		}
+	};
 
 	return <div>Profile</div>;
 };

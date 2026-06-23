@@ -39,7 +39,11 @@ const TransactionItem = ({
 			nextErrors.amount = "Amount is required.";
 		} else if (Number(amt) <= 0) {
 			nextErrors.amount = "Amount must be greater than 0.";
-		}
+		} else {
+			const parsed = Number(amt);
+			if (!Number.isFinite(parsed) || parsed <= 0) {
+				nextErrors.amount = "Amount must be greater than 0.";
+			}
 
 		setErrors(nextErrors);
 		return !nextErrors.description && !nextErrors.amount;
