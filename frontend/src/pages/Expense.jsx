@@ -7,7 +7,6 @@ import {
 	Eye,
 	Calendar,
 	TrendingDown,
-	Filter,
 	BarChart2,
 } from "lucide-react";
 import {
@@ -165,6 +164,11 @@ const ExpensePage = () => {
 
 		return getTimeFrameRange(timeFrame);
 	}, [timeFrame, timeFrameRange]);
+
+	const chartPoints = useMemo(
+		() => generateChartPoints(timeFrame, timeFrameRange),
+		[timeFrame, timeFrameRange],
+	);
 
 	// Function to check if a date is within a range
 	const isDateInRange = useCallback((date, start, end) => {

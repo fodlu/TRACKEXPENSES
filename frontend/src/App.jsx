@@ -18,7 +18,7 @@ import Profile from "./pages/Profile";
 const API_URL = "http://localhost:4000";
 
 // to get transaction from local strorage
-const getTransactionFromStorage = () => {
+const getTransactionsFromStorage = () => {
 	const saved = localStorage.getItem("transactions");
 	return saved ? JSON.parse(saved) : [];
 };
@@ -49,7 +49,7 @@ const ScrollToTop = () => {
 
 const App = () => {
 	const [user, setUser] = useState(null);
-	const [token, setToken] = useState(null);
+	const [, setToken] = useState(null);
 	const [transactions, setTransactions] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
@@ -163,7 +163,7 @@ const App = () => {
 				setIsLoading(false);
 
 				try {
-					setTransactions(getTransactionFromStorage);
+					setTransactions(getTransactionsFromStorage());
 				} catch (error) {
 					console.error("Error loading the transaction: ", error);
 				}
