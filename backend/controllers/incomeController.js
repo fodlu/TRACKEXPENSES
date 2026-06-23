@@ -113,7 +113,7 @@ export async function deleteIncome(req, res ) {
 export async function downloadIncomeExcel(req, res) {
     const userId = req.user._id;
     try {
-        const income = (await incomeModel.find({userId})).toSorted({date: -1});
+        const income = (await incomeModel.find({userId})).sort({date: -1});
         const plainData = income.map((inc) => ({
             Description: inc.description,
             Amount: inc.amount,

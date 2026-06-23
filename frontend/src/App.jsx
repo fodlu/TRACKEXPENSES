@@ -12,6 +12,8 @@ import Login from "./components/Login";
 import SignUp from "./components/SignUp";
 import axios from "axios";
 import Income from "./pages/Income";
+import Expense from "./pages/Expense";
+import Profile from "./pages/Profile";
 
 const API_URL = "http://localhost:4000";
 
@@ -243,7 +245,24 @@ const App = () => {
 							/>
 						}
 					/>
+
+					<Route
+						path='/expense'
+						element={
+							<Expense
+								transactions={transactions}
+								addTransaction={addTransaction}
+								editTransaction={editTransaction}
+								deleteTransaction={deleteTransaction}
+								refreshTransactions={refreshTransactions}
+							/>
+						}
+					/>
+
+					<Route path="/profile" element={<Profile user={user} onUpdateProfile={updateUserData} onLogout={handleLogout} />} />
 				</Route>
+
+				<Route path="*" element={<Navigate to={user ? '/' : '/login' } replace/> } />
 			</Routes>
 		</>
 	);

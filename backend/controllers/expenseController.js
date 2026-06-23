@@ -115,7 +115,7 @@ export async function deleteExpense(req, res ) {
 export async function downloadExpenseExcel(req, res) {
     const userId = req.user._id;
     try {
-        const expense = (await expenseModel.find({userId})).toSorted({date: -1});
+        const expense = (await expenseModel.find({userId})).sort({date: -1});
         const plainData = expense.map((exp) => ({
             Description: exp.description,
             Amount: exp.amount,

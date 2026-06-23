@@ -36,7 +36,7 @@ import {
 	TrendingUp,
 	Wallet,
 } from "lucide-react";
-import FinancialCard from "./FinancialCard";
+import FinancialCard from "../components/FinancialCard";
 import GaugeCard from "../components/GaugeCard";
 import { Cell, Legend, ResponsiveContainer, Pie, Tooltip } from "recharts";
 import AddTransactionModal from "../components/Add";
