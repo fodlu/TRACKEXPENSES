@@ -45,151 +45,152 @@ const TransactionItem = ({
 				nextErrors.amount = "Amount must be greater than 0.";
 			}
 
-		setErrors(nextErrors);
-		return !nextErrors.description && !nextErrors.amount;
-	};
-
-	const handleSaveClick = () => {
-		if (validate()) {
-			setErrors({ description: "", amount: "" });
-			onSave();
+			setErrors(nextErrors);
+			return !nextErrors.description && !nextErrors.amount;
 		}
-	}; // to save the description and amount
 
-	return (
-		<div className={transactionItemStyles.container(isEditing, classes)}>
-			<div className={transactionItemStyles.mainContainer}>
-				<div
-					className={transactionItemStyles.iconContainer(iconClass, classes)}>
-					{categoryIcons[transaction.category] || (
-						<DollarSign className='w-5 h-5' />
-					)}
-				</div>
+		const handleSaveClick = () => {
+			if (validate()) {
+				setErrors({ description: "", amount: "" });
+				onSave();
+			}
+		}; // to save the description and amount
 
-				<div className={transactionItemStyles.contentContainer}>
-					{isEditing ?
-						<>
-							<input
-								type='text'
-								value={editForm.description}
-								onChange={(e) =>
-									setEditForm((prev) => ({
-										...prev,
-										description: e.target.value,
-									}))
-								}
-								className={transactionItemStyles.input(
-									!!errors.description,
-									classes,
+		return (
+			<div className={transactionItemStyles.container(isEditing, classes)}>
+				<div className={transactionItemStyles.mainContainer}>
+					<div
+						className={transactionItemStyles.iconContainer(iconClass, classes)}>
+						{categoryIcons[transaction.category] || (
+							<DollarSign className='w-5 h-5' />
+						)}
+					</div>
+
+					<div className={transactionItemStyles.contentContainer}>
+						{isEditing ?
+							<>
+								<input
+									type='text'
+									value={editForm.description}
+									onChange={(e) =>
+										setEditForm((prev) => ({
+											...prev,
+											description: e.target.value,
+										}))
+									}
+									className={transactionItemStyles.input(
+										!!errors.description,
+										classes,
+									)}
+								/>
+								{errors.description && (
+									<p
+										className={transactionItemStyles.errorText}
+										id={`desc-error-${transaction.id}`}>
+										{errors.description}
+									</p>
 								)}
-							/>
-							{errors.description && (
-								<p
-									className={transactionItemStyles.errorText}
-									id={`desc-error-${transaction.id}`}>
-									{errors.description}
-								</p>
-							)}
-						</>
-					:	<p className={transactionItemStyles.description}>
-							{transaction.description}
+							</>
+						:	<p className={transactionItemStyles.description}>
+								{transaction.description}
+							</p>
+						}
+
+						<p className={transactionItemStyles.details}>
+							{new Date(transaction.date).toLocaleDateString()} *{" "}
+							{transaction.category}
 						</p>
-					}
-
-					<p className={transactionItemStyles.details}>
-						{new Date(transaction.date).toLocaleDateString()} *{" "}
-						{transaction.category}
-					</p>
+					</div>
 				</div>
-			</div>
 
-			<div className={transactionItemStyles.actionsContainer}>
-				<div className={transactionItemStyles.amountContainer}>
-					{isEditing ?
-						<>
-							<input
-								type='number'
-								value={editForm.amount}
-								onChange={(e) =>
-									setEditForm((prev) => ({ ...prev, amount: e.target.value }))
-								}
-								className={transactionItemStyles.amountInput(
-									!!errors.amount,
-									classes,
+				<div className={transactionItemStyles.actionsContainer}>
+					<div className={transactionItemStyles.amountContainer}>
+						{isEditing ?
+							<>
+								<input
+									type='number'
+									value={editForm.amount}
+									onChange={(e) =>
+										setEditForm((prev) => ({ ...prev, amount: e.target.value }))
+									}
+									className={transactionItemStyles.amountInput(
+										!!errors.amount,
+										classes,
+									)}
+								/>
+								{errors.amount && (
+									<p
+										id={`amt-error-${transaction.id}`}
+										className={transactionItemStyles.errorText}>
+										{errors.amount}
+									</p>
 								)}
-							/>
-							{errors.amount && (
-								<p
-									id={`amt-error-${transaction.id}`}
-									className={transactionItemStyles.errorText}>
-									{errors.amount}
-								</p>
-							)}
-						</>
-					:	<span
-							className={transactionItemStyles.amountText(
-								amountClass,
-								classes,
-							)}>
-							{sign}$
-							{Number(transaction.amount).toLocaleString("en-US", {
-								maximumFractionDigits: 2,
-								minimumFractionDigits: 2,
-							})}
-						</span>
-					}
-				</div>
+							</>
+						:	<span
+								className={transactionItemStyles.amountText(
+									amountClass,
+									classes,
+								)}>
+								{sign}$
+								{Number(transaction.amount).toLocaleString("en-US", {
+									maximumFractionDigits: 2,
+									minimumFractionDigits: 2,
+								})}
+							</span>
+						}
+					</div>
 
-				<div className={transactionItemStyles.buttonsContainer}>
-					{isEditing ?
-						<>
-							<button
-								onClick={handleSaveClick}
-								className={transactionItemStyles.saveButton(classes)}
-								title='Save'>
-								<Save size={16} />
-							</button>
+					<div className={transactionItemStyles.buttonsContainer}>
+						{isEditing ?
+							<>
+								<button
+									onClick={handleSaveClick}
+									className={transactionItemStyles.saveButton(classes)}
+									title='Save'>
+									<Save size={16} />
+								</button>
 
-							<button
-								onClick={() => {
-									setErrors({ description: "", amount: "" });
-									onCancel();
-								}}
-								className={transactionItemStyles.cancelButton}
-								title='Cancel'>
-								<X size={16} />
-							</button>
-						</>
-					:	<>
-							<button
-								onClick={() => {
-									setEditForm({
-										description: transaction.description ?? "",
-										amount: transaction.amount ?? "",
-										category: transaction.category ?? "",
-										date: transaction.date ?? "",
-										type: transaction.type ?? "expense",
-									});
-									setErrors({ description: "", amount: "" });
-									setEditingId(transaction.id);
-								}}
-								className={transactionItemStyles.editButton(classes)}
-								title='Edit'>
-								<Edit size={16} />
-							</button>
+								<button
+									onClick={() => {
+										setErrors({ description: "", amount: "" });
+										onCancel();
+									}}
+									className={transactionItemStyles.cancelButton}
+									title='Cancel'>
+									<X size={16} />
+								</button>
+							</>
+						:	<>
+								<button
+									onClick={() => {
+										setEditForm({
+											description: transaction.description ?? "",
+											amount: transaction.amount ?? "",
+											category: transaction.category ?? "",
+											date: transaction.date ?? "",
+											type: transaction.type ?? "expense",
+										});
+										setErrors({ description: "", amount: "" });
+										setEditingId(transaction.id);
+									}}
+									className={transactionItemStyles.editButton(classes)}
+									title='Edit'>
+									<Edit size={16} />
+								</button>
 
-							<button
-								onClick={() => onDelete(transaction.id)}
-								className={transactionItemStyles.deleteButton(classes)}
-								title='Delete'>
-								<Trash2 size={16} />
-							</button>
-						</>
-					}
+								<button
+									onClick={() => onDelete(transaction.id)}
+									className={transactionItemStyles.deleteButton(classes)}
+									title='Delete'>
+									<Trash2 size={16} />
+								</button>
+							</>
+						}
+					</div>
 				</div>
 			</div>
-		</div>
-	);
+		);
+	};
 };
 
 export default TransactionItem;
