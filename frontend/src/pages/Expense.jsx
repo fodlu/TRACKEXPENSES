@@ -163,7 +163,7 @@ const ExpensePage = () => {
 		}
 
 		return getTimeFrameRange(timeFrame);
-	}, [timeFrame, timeFrameRange]);
+	}, [timeFrame]);
 
 	const chartPoints = useMemo(
 		() => generateChartPoints(timeFrame, timeFrameRange),
@@ -243,7 +243,7 @@ const ExpensePage = () => {
 
 	// Calculate totals
 	const totalExpense = useMemo(
-		() => () =>
+		() =>
 			filteredTransactions.reduce((sum, t) => {
 				const amount = Number(t.amount);
 				return sum + (Number.isFinite(amount) ? amount : 0);
@@ -469,7 +469,7 @@ const ExpensePage = () => {
 						</div>
 					}
 					label='Total Expenses'
-					value={`$${totalExpense.toLocaleString()}`}
+					value={`₦${totalExpense.toLocaleString()}`}
 					additionalContent={
 						<div className='mt-2 text-xs text-gray-500 flex items-center'>
 							<Calendar className='w-3 h-3 mr-1' /> {timeFrameRange.label}
@@ -481,11 +481,11 @@ const ExpensePage = () => {
 				<FinancialCard
 					icon={
 						<div className={styles.iconAmber}>
-							<BarChart2 className={`w-5 h-5 ${styles.textAmber}`} />
+							<BarChart2 className={`w-5 h-5 ₦{styles.textAmber}`} />
 						</div>
 					}
 					label='Average Expense'
-					value={`$${averageExpense.toLocaleString()}`}
+					value={`₦${averageExpense.toLocaleString()}`}
 					additionalContent={
 						<div className='mt-2 text-xs text-gray-500 flex items-center'>
 							<Calendar className='w-3 h-3 mr-1' />{" "}
@@ -566,11 +566,11 @@ const ExpensePage = () => {
 								tickLine={false}
 								tick={{ fill: "#6b7280", fontSize: 12 }}
 								width={60}
-								tickFormatter={(value) => `$${value.toLocaleString()}`}
+								tickFormatter={(value) => `₦${value.toLocaleString()}`}
 							/>
 							<Tooltip
 								formatter={(value) => [
-									`$${Math.round(value).toLocaleString()}`,
+									`₦${Math.round(value).toLocaleString()}`,
 									"Expense",
 								]}
 								contentStyle={styles.tooltipContent}

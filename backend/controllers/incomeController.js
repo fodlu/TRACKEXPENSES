@@ -39,8 +39,8 @@ export async function addIncome(req, res) {
 export async function getAllIncome(req, res) {
 	const userId = req.user.id;
 	try {
-		const income = (await incomeModel.find({ userId })).sort({ date: -1 });
-		res.json(income);
+		const income = await incomeModel.find({userId});
+        return res.json(income);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({
@@ -138,7 +138,7 @@ export async function downloadIncomeExcel(req, res) {
 // to get income overview
 export async function getIncomeOverview(req, res ) {
     try {
-        const userId = user._id;
+        const userId = req.user._id;
         const {range = "monthly"} = req.query;
         const {start, end} = getDateRange(range)
 

@@ -140,9 +140,9 @@ const AddTransactionModal = ({
                         </div>
 
                         <div>
-                            <label htmlFor="" className={modalStyles.label}>Date</label>
+                            <label className={modalStyles.label}>Date</label>
                             <input type="date" value={newTransaction.date} onChange={e => {
-                                newTransaction((prev) => ({
+                                setNewTransaction((prev) => ({
                                     ...prev, date: e.target.value
                                 }))
                             }} className={modalStyles.input(colorClass.ring)} min={minDate} max={currentDate} required />

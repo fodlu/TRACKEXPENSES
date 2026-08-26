@@ -38,7 +38,7 @@ const GaugeCard = ({
             cy="50%"
             startAngle={180}
             endAngle={0}
-            innerRadius="70%"
+            innerRadius="80%"
             outerRadius="100%"
           >
             <PolarAngleAxis
@@ -64,7 +64,7 @@ const GaugeCard = ({
               dominantBaseline="middle"
               className={`text-2xl font-bold ${textColor}`}
             >
-              {isNegative ? '-' : ''}${Math.round(absValue).toLocaleString()}
+              {isNegative ? '-' : ''}₦{Math.round(absValue).toLocaleString()}
             </text>
             <text
               x="50%"

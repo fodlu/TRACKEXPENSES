@@ -80,7 +80,7 @@ export async function loginUser(req, res) {
 	try {
 		const user = await userModel.findOne({ email });
 		if (!user) {
-			return res.success(401).json({
+			return res.status(401).json({
 				success: false,
 				message: "Invalid email or password",
 			});
