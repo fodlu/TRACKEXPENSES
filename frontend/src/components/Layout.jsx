@@ -26,7 +26,7 @@ import {
 import axios from "axios";
 import { Outlet } from "react-router-dom";
 
-const API_BASE = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 const CATEGORY_ICONS = {
 	Food: <Utensils className='w-4 h-4' />,
 	Housing: <Home className='w-4 h-4' />,
@@ -89,8 +89,8 @@ const Layout = ({ onLogout, user }) => {
 			const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
 			const [incomeRes, expenseRes] = await Promise.all([
-				axios.get(`${API_BASE}/income/get`, { headers: headers }),
-				axios.get(`${API_BASE}/expense/get`, { headers: headers }),
+				axios.get(`${API_URL}/income/get`, { headers: headers }),
+				axios.get(`${API_URL}/expense/get`, { headers: headers }),
 			]);
 
 			const incomes = safeArrayFromResponse(incomeRes).map((i) => ({
@@ -133,7 +133,7 @@ const Layout = ({ onLogout, user }) => {
 			const headers = token ? { Authorization: `Bearer ${token}` } : {};
 			const endpoint =
 				transaction.type === "income" ? "income/add" : "expense/add";
-			await axios.post(`${API_BASE}/${endpoint}`, transaction, { headers });
+			await axios.post(`${API_URL}/${endpoint}`, transaction, { headers });
 			await fetchTransactions();
 			return true;
 		} catch (err) {
@@ -152,7 +152,7 @@ const Layout = ({ onLogout, user }) => {
 			const headers = token ? { Authorization: `Bearer ${token}` } : {};
 			const endpoint =
 				transaction.type === "income" ? "income/update" : "expense/update";
-			await axios.put(`${API_BASE}/${endpoint}/${id}`, transaction, {
+			await axios.put(`${API_URL}/${endpoint}/${id}`, transaction, {
 				headers,
 			});
 			await fetchTransactions();
@@ -172,7 +172,7 @@ const Layout = ({ onLogout, user }) => {
 			const token = localStorage.getItem("token");
 			const headers = token ? { Authorization: `Bearer ${token}` } : {};
 			const endpoint = type === "income" ? "income/delete" : "expense/delete";
-			await axios.delete(`${API_BASE}/${endpoint}/${id}`, { headers });
+			await axios.delete(`${API_URL}/${endpoint}/${id}`, { headers });
 			await fetchTransactions();
 			return true;
 		} catch (err) {
