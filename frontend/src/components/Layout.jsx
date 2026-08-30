@@ -12,6 +12,7 @@ import {
 	CreditCard,
 	DollarSign,
 	Gift,
+	Hash,
 	Home,
 	Info,
 	PieChart,
@@ -83,12 +84,13 @@ const Layout = ({ onLogout, user }) => {
 	const fetchTransactions = async () => {
 		try {
 			setLoading(true);
-			const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+			const token =
+				localStorage.getItem("token") || sessionStorage.getItem("token");
 			const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
 			const [incomeRes, expenseRes] = await Promise.all([
-				axios.get(`${API_BASE}/income/get`, { headers }),
-				axios.get(`${API_BASE}/expense/get`, { headers }),
+				axios.get(`${API_BASE}/income/get`, { headers: headers }),
+				axios.get(`${API_BASE}/expense/get`, { headers: headers }),
 			]);
 
 			const incomes = safeArrayFromResponse(incomeRes).map((i) => ({
@@ -324,20 +326,20 @@ const Layout = ({ onLogout, user }) => {
 							<div>
 								<p className={styles.statCards.cardTitle}>Total Balance</p>
 								<p className={styles.statCards.cardValue}>
-									${" "}
-									{stats.allTimeSavings.toLocaleString("en-US", {
+									₦{" "}
+									{stats.allTimeSavings.toLocaleString("en-NG", {
 										maximumFractionDigits: 2,
 									})}
 								</p>
 							</div>
 
 							<div className={styles.statCards.iconContainer("teal")}>
-								<DollarSign className={styles.statCards.icon("teal")} />
+								<Hash className={styles.statCards.icon("teal")} />
 							</div>
 						</div>
 						<p className={styles.statCards.cardFooter}>
 							<span className='text-teal-600 font-medium'>
-								+${stats.last30DaysSavings.toLocaleString()}
+								+₦{stats.last30DaysSavings.toLocaleString()}
 							</span>{" "}
 							this month
 						</p>
@@ -349,8 +351,8 @@ const Layout = ({ onLogout, user }) => {
 							<div>
 								<p className={styles.statCards.cardTitle}>Monthly Income</p>
 								<p className={styles.statCards.cardValue}>
-									$
-									{stats.last30DaysIncome.toLocaleString("en-US", {
+									₦
+									{stats.last30DaysIncome.toLocaleString("en-NG", {
 										maximumFractionDigits: 2,
 									})}
 								</p>
@@ -372,8 +374,8 @@ const Layout = ({ onLogout, user }) => {
 							<div>
 								<p className={styles.statCards.cardTitle}>Monthly Expense</p>
 								<p className={styles.statCards.cardValue}>
-									${" "}
-									{stats.last30DaysExpenses.toLocaleString("en-US", {
+									₦
+									{stats.last30DaysExpenses.toLocaleString("en-NG", {
 										maximumFractionDigits: 2,
 									})}
 								</p>
@@ -399,7 +401,7 @@ const Layout = ({ onLogout, user }) => {
 							<div>
 								<p className={styles.statCards.cardTitle}>Saving Rate</p>
 								<p className={styles.statCards.cardValue}>
-									$ {stats.savingsRate}%
+									{stats.savingsRate}%
 								</p>
 							</div>
 
@@ -481,7 +483,7 @@ const Layout = ({ onLogout, user }) => {
 											</div>
 
 											<span className={styles.colors.transaction.text(type)}>
-												{type === "income" ? "+" : "-"}${Number(amount)}
+												{type === "income" ? "+" : "-"}₦{Number(amount)}
 											</span>
 										</div>
 									);
@@ -542,7 +544,7 @@ const Layout = ({ onLogout, user }) => {
 											</span>
 										</div>
 										<span className={styles.categories.categoryAmount}>
-											${amount}
+											₦{amount}
 										</span>
 									</div>
 								))}
@@ -555,7 +557,7 @@ const Layout = ({ onLogout, user }) => {
 											Total Income
 										</p>
 										<p className={styles.categories.summaryValue}>
-											${stats.allTimeIncome.toLocaleString()}
+											₦{stats.allTimeIncome.toLocaleString()}
 										</p>
 									</div>
 
@@ -564,7 +566,7 @@ const Layout = ({ onLogout, user }) => {
 											Total Expense
 										</p>
 										<p className={styles.categories.summaryValue}>
-											${stats.allTimeExpenses.toLocaleString()}
+											₦{stats.allTimeExpenses.toLocaleString()}
 										</p>
 									</div>
 								</div>

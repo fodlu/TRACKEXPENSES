@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL
+
 
 Modal.setAppElement("#root");
 // Move PasswordInput component outside of ProfilePage to prevent recreation on every render
@@ -83,7 +84,7 @@ const Profile = ({ onUpdateProfile, onLogout }) => {
 				setLoading(true);
 				const config = {
 					method,
-					url: `${BASE_URL}${endpoint}`,
+					url: `${API_URL}${endpoint}`,
 					headers: { Authorization: `Bearer ${token}` },
 				};
 				if (data) config.data = data;
@@ -163,6 +164,7 @@ const Profile = ({ onUpdateProfile, onLogout }) => {
 	// password validation
 	const validatePassword = useCallback(() => {
 		const errors = {};
+
 		if (!passwordData.current) errors.current = "Current password is required";
 		if (!passwordData.new) {
 			errors.new = "New password is required";
@@ -174,7 +176,7 @@ const Profile = ({ onUpdateProfile, onLogout }) => {
 		}
 		setPasswordErrors(errors);
 		return Object.keys(errors).length === 0;
-	}, [passwordData.current]);
+	}, [passwordData.current, passwordData.new, passwordData.confirm]);
 
 	//   to change password
 	const handlePasswordSubmit = async (e) => {
@@ -206,7 +208,7 @@ const Profile = ({ onUpdateProfile, onLogout }) => {
 
 	const closePasswordModal = useCallback(() => {
 		if (!loading) {
-			setShowPassword(false);
+			setShowPasswordModal(false);
 			setPasswordData({ current: "", new: "", confirm: "" });
 			setPasswordErrors({});
 

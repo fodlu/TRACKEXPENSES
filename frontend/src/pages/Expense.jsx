@@ -29,7 +29,8 @@ import { getTimeFrameRange, generateChartPoints } from "../components/Helpers";
 import { CATEGORY_ICONS } from "../assets/color";
 import { expensePageStyles as styles } from "../assets/dummyStyles";
 
-const API_BASE = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL
+
 
 /**
  * Helper: convert date (or datetime) to ISO by attaching client current time
@@ -108,7 +109,7 @@ const ExpensePage = () => {
 	const fetchOverview = useCallback(
 		async (range = timeFrame ?? "monthly") => {
 			try {
-				const res = await axios.get(`${API_BASE}/expense/overview`, {
+				const res = await axios.get(`${API_URL}/expense/overview`, {
 					headers: getAuthHeaders(),
 					params: { range },
 				});
@@ -163,7 +164,7 @@ const ExpensePage = () => {
 		}
 
 		return getTimeFrameRange(timeFrame);
-	}, [timeFrame, timeFrameRange]);
+	}, [timeFrame]);
 
 	const chartPoints = useMemo(
 		() => generateChartPoints(timeFrame, timeFrameRange),
@@ -243,7 +244,7 @@ const ExpensePage = () => {
 
 	// Calculate totals
 	const totalExpense = useMemo(
-		() => () =>
+		() =>
 			filteredTransactions.reduce((sum, t) => {
 				const amount = Number(t.amount);
 				return sum + (Number.isFinite(amount) ? amount : 0);
@@ -286,7 +287,7 @@ const ExpensePage = () => {
 			setLoading(true);
 			const config = {
 				method,
-				url: `${API_BASE}${url}`,
+				url: `${API_URL}${url}`,
 				headers: { "Content-Type": "application/json", ...getAuthHeaders() },
 			};
 
@@ -386,7 +387,7 @@ const ExpensePage = () => {
 	// Export -> GET /expense/downloadexcel (server) with client fallback
 	const handleExport = async () => {
 		try {
-			const res = await axios.get(`${API_BASE}/expense/downloadexcel`, {
+			const res = await axios.get(`${API_URL}/expense/downloadexcel`, {
 				headers: getAuthHeaders(),
 				responseType: "blob",
 			});
@@ -469,7 +470,7 @@ const ExpensePage = () => {
 						</div>
 					}
 					label='Total Expenses'
-					value={`$${totalExpense.toLocaleString()}`}
+					value={`₦${totalExpense.toLocaleString()}`}
 					additionalContent={
 						<div className='mt-2 text-xs text-gray-500 flex items-center'>
 							<Calendar className='w-3 h-3 mr-1' /> {timeFrameRange.label}
@@ -481,11 +482,11 @@ const ExpensePage = () => {
 				<FinancialCard
 					icon={
 						<div className={styles.iconAmber}>
-							<BarChart2 className={`w-5 h-5 ${styles.textAmber}`} />
+							<BarChart2 className={`w-5 h-5 ₦{styles.textAmber}`} />
 						</div>
 					}
 					label='Average Expense'
-					value={`$${averageExpense.toLocaleString()}`}
+					value={`₦${averageExpense.toLocaleString()}`}
 					additionalContent={
 						<div className='mt-2 text-xs text-gray-500 flex items-center'>
 							<Calendar className='w-3 h-3 mr-1' />{" "}
@@ -566,11 +567,11 @@ const ExpensePage = () => {
 								tickLine={false}
 								tick={{ fill: "#6b7280", fontSize: 12 }}
 								width={60}
-								tickFormatter={(value) => `$${value.toLocaleString()}`}
+								tickFormatter={(value) => `₦${value.toLocaleString()}`}
 							/>
 							<Tooltip
 								formatter={(value) => [
-									`$${Math.round(value).toLocaleString()}`,
+									`₦${Math.round(value).toLocaleString()}`,
 									"Expense",
 								]}
 								contentStyle={styles.tooltipContent}

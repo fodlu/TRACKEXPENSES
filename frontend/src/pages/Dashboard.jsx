@@ -11,7 +11,6 @@ import {
 	EXPENSE_CATEGORY_ICONS,
 } from "../assets/color";
 import { useOutletContext } from "react-router-dom";
-// import { calculateData } from "../components/Helpers";
 
 import {
 	calculateData,
@@ -41,7 +40,7 @@ import GaugeCard from "../components/GaugeCard";
 import { Cell, Legend, ResponsiveContainer, Pie, Tooltip } from "recharts";
 import AddTransactionModal from "../components/Add";
 
-const API_BASE = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL
 
 const getAuthHeader = () => {
 	const token =
@@ -272,11 +271,11 @@ const Dashboard = () => {
 	const fecthDashboardOverview = async () => {
 		try {
 			setLoading(true);
-			const res = await axios.get(`${API_BASE}/dashboard`, {
+			const res = await axios.get(`${API_URL}/dashboard`, {
 				headers: getAuthHeader(),
 			});
 
-			if (!res?.data?.success) {
+			if (!res?.data?.data?.success) {
 				const data = res.data.data;
 
 				const recent = (data.recentTransactions || []).map((item) => {
@@ -381,11 +380,11 @@ const Dashboard = () => {
 		try {
 			setLoading(true);
 			if (newTransaction.type === "income") {
-				await axios.post(`${API_BASE}/income/add`, payload, {
+				await axios.post(`${API_URL}/income/add`, payload, {
 					headers: getAuthHeader(),
 				});
 			} else {
-				await axios.post(`${API_BASE}/expense/add`, payload, {
+				await axios.post(`${API_URL}/expense/add`, payload, {
 					headers: getAuthHeader(),
 				});
 			}
@@ -453,15 +452,15 @@ const Dashboard = () => {
 						</div>
 					}
 					label='Total Balance'
-					value={`$${Math.round(displayIncome - displayExpenses).toLocaleString()}`}
+					value={`₦${Math.round(displayIncome - displayExpenses).toLocaleString()}`}
 					additionalContent={
 						<div className='flex items-center gap-2 mt-2 text-sm'>
 							<span className={dashboardStyles.balanceBadge}>
-								+${Math.round(displayIncome).toLocaleString()}
+								+₦{Math.round(displayIncome).toLocaleString()}
 							</span>
 
 							<span className={dashboardStyles.expenseBadge}>
-								-${Math.round(displayExpenses).toLocaleString()}
+								-₦{Math.round(displayExpenses).toLocaleString()}
 							</span>
 						</div>
 					}
@@ -474,7 +473,7 @@ const Dashboard = () => {
 						</div>
 					}
 					label={`${timeFrameRange.label} Expense`}
-					value={`$${Math.round(displayExpenses).toLocaleString()}`}
+					value={`₦${Math.round(displayExpenses).toLocaleString()}`}
 					additionalContent={
 						<div
 							className={`mt-2 text-xs flex items-center gap-1 ${
@@ -500,7 +499,7 @@ const Dashboard = () => {
 						</div>
 					}
 					label={`${timeFrameRange.label} Savings`}
-					value={`$${Math.round(displaySavings).toLocaleString()}`}
+					value={`₦${Math.round(displaySavings).toLocaleString()}`}
 					additionalContent={
 						<div className='mt-2 text-xs text-cyan-600 flex items-center gap-2'>
 							<div className='flex items-center gap-1'>
@@ -575,7 +574,7 @@ const Dashboard = () => {
 							</Pie>
 							<Tooltip
 								formatter={(value) => [
-									`$${Math.round(value).toLocaleString()}`,
+									`₦${Math.round(value).toLocaleString()}`,
 									"Amount",
 								]}
 								contentStyle={dashboardStyles.tooltipContent}
@@ -637,7 +636,7 @@ const Dashboard = () => {
 									</div>
 									<div className={dashboardStyles.transactionAmount}>
 										<p className={dashboardStyles.incomeAmount}>
-											+${Math.abs(transaction.amount).toLocaleString()}
+											+₦{Math.abs(transaction.amount).toLocaleString()}
 										</p>
 										<p className={dashboardStyles.transactionDate}>
 											{new Date(transaction.date).toLocaleDateString()}
@@ -765,7 +764,14 @@ const Dashboard = () => {
 				</div>
 			</div>
 
-			<AddTransactionModal showModal={showModal} setShowModal={setShowModal} newTransaction={newTransaction} setNewTransaction={setNewTransaction} handleAddTransaction={handleAddTransaction} loading={loading} />
+			<AddTransactionModal
+				showModal={showModal}
+				setShowModal={setShowModal}
+				newTransaction={newTransaction}
+				setNewTransaction={setNewTransaction}
+				handleAddTransaction={handleAddTransaction}
+				loading={loading}
+			/>
 		</div>
 	);
 };

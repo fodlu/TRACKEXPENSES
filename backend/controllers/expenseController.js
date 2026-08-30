@@ -1,6 +1,6 @@
 import expenseModel from "../models/expenseModel.js";
 import getDateRange from "../utils/dateFilter.js";
-import XLSX from 'xlsx'
+import XLSX from "xlsx";
 
 // add expense
 export async function addExpense(req, res) {
@@ -39,10 +39,8 @@ export async function addExpense(req, res) {
 export async function getAllExpense(req, res) {
 	const userId = req.user.id;
 	try {
-		const expense = (await expenseModel.find({ userId })).sort({
-			date: -1,
-		});
-		res.json(expense);
+		const expense = await expenseModel.find({ userId });
+		return res.json(expense);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).json({
@@ -77,7 +75,7 @@ export async function updateExpense(req, res) {
 		res.json({
 			success: true,
 			message: "Expense updated successfully ",
-            data: updatedExpense
+			data: updatedExpense,
 		});
 	} catch (error) {
 		console.error(error);
@@ -89,87 +87,90 @@ export async function updateExpense(req, res) {
 }
 
 // to delete an expense
-export async function deleteExpense(req, res ) {
-    try {
-        const expense = await expenseModel.findByIdAndDelete({id: req.params.id});
-        if(!expense) {
-            return res.status(404).json({
-                success: false,
-                message: "Expense not found"
-            })
-        }
-        return res.json({
-            success: false,
-            message: "Expense deleted successfully"
-        })
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error"
-        })
-    }
+export async function deleteExpense(req, res) {
+	try {
+		const expense = await expenseModel.findByIdAndDelete({ id: req.params.id });
+		if (!expense) {
+			return res.status(404).json({
+				success: false,
+				message: "Expense not found",
+			});
+		}
+		return res.json({
+			success: false,
+			message: "Expense deleted successfully",
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			success: false,
+			message: "Server error",
+		});
+	}
 }
 
 // to download excel for expense
 export async function downloadExpenseExcel(req, res) {
-    const userId = req.user._id;
-    try {
-        const expense = (await expenseModel.find({userId})).sort({date: -1});
-        const plainData = expense.map((exp) => ({
-            Description: exp.description,
-            Amount: exp.amount,
-            Category: exp.category,
-            Date: new Date(exp.date).toLocaleDateString()
-        }))
+	const userId = req.user._id;
+	try {
+		const expense = await expenseModel.find({ userId }).sort({ date: -1 });
+		const plainData = expense.map((exp) => ({
+			Description: exp.description,
+			Amount: exp.amount,
+			Category: exp.category,
+			Date: new Date(exp.date).toLocaleDateString(),
+		}));
 
-        const worksheet = XLSX.utils.json_to_sheet(plainData);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "expenseModel");
-        XLSX.writeFile(workbook, "expense_details.xlsx");
-        res.download("expense_details.xlsx")
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error this time"
-        })
-    }
+		const worksheet = XLSX.utils.json_to_sheet(plainData);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, "expenseModel");
+		XLSX.writeFile(workbook, "expense_details.xlsx");
+		res.download("expense_details.xlsx");
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			success: false,
+			message: "Server error this time",
+		});
+	}
 }
 
 // to get the overview of the expense
-export async function getExpenseOverview(req, res ) {
-    try {
-        const userId = user._id;
-        const {range = "monthly"} = req.query;
-        const {start, end} = getDateRange(range)
+export async function getExpenseOverview(req, res) {
+	try {
+		const userId = req.user._id;
+		const { range = "monthly" } = req.query;
+		const { start, end } = getDateRange(range);
 
-        const expense = await expenseModel.find({
-            userId,
-            date: {$gte: start, $lte: end}
-        }).sort({date: -1})
+		const expense = await expenseModel
+			.find({
+				userId,
+				date: { $gte: start, $lte: end },
+			})
+			.sort({ date: -1 });
 
-        const totalExpense = expense.reduce((acc, cur) => acc + cur.amount, 0);
-        const averageExpense = expense.length > 0 ? totalExpense / expense.length : 0;
-        const numberOfTransactions = expense.length;
+		const totalExpense = expense.reduce((acc, cur) => acc + cur.amount, 0);
+		const averageExpense =
+			expense.length > 0 ? totalExpense / expense.length : 0;
+		const numberOfTransactions = expense.length;
 
-        const recentTransaction = expense.slice(0, 5);
+		const recentTransaction = expense.slice(0, 5);
 
-        res.json({
-            success: true,
-            data: {
-                totalExpense,
-                averageExpense,
-                numberOfTransactions,
-                recentTransactions,
-                range
-            }
-        })
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Server error"
-        })
-    }
+		res.json({
+			success: true,
+			data: {
+				totalExpense,
+				averageExpense,
+				numberOfTransactions,
+				recentTransaction,
+				range,
+			},
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({
+			success: false,
+			message: "Server error",
+		});
+	}
 }
