@@ -32,7 +32,8 @@ import { INCOME_COLORS, CATEGORY_ICONS_Inc } from "../assets/color";
 import { incomeStyles as styles } from "../assets/dummyStyles";
 import FinancialCard from "../components/FinancialCard";
 
-const API_BASE = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL
+
 
 // help in converting date to ISO time
 function toIsoWithClientTime(dateValue) {
@@ -288,7 +289,7 @@ const IncomePage = () => {
 	const fetchOverview = useCallback(
 		async (range = timeFrame ?? "monthly") => {
 			try {
-				const res = await axios.get(`${API_BASE}/income/overview`, {
+				const res = await axios.get(`${API_URL}/income/overview`, {
 					headers: getAuthHeaders(),
 					params: { range },
 				});
@@ -363,7 +364,7 @@ const IncomePage = () => {
 				date: toIsoWithClientTime(newTransaction.date),
 			};
 
-			await axios.post(`${API_BASE}/income/add`, payload, {
+			await axios.post(`${API_URL}/income/add`, payload, {
 				headers: { "Content-Type": "application/json", ...getAuthHeaders() },
 			});
 			await refreshTransactions();
@@ -413,7 +414,7 @@ const IncomePage = () => {
 				date: toIsoWithClientTime(editForm.date),
 			};
 
-			await axios.put(`${API_BASE}/income/update/${editingId}`, payload, {
+			await axios.put(`${API_URL}/income/update/${editingId}`, payload, {
 				headers: { "Content-Type": "application/json", ...getAuthHeaders() },
 			});
 
@@ -446,7 +447,7 @@ const IncomePage = () => {
 
 			try {
 				setLoading(true);
-				await axios.delete(`${API_BASE}/income/delete/${id}`, {
+				await axios.delete(`${API_URL}/income/delete/${id}`, {
 					headers: getAuthHeaders(),
 				});
 
@@ -466,7 +467,7 @@ const IncomePage = () => {
     // to download the excel sheet
 	const handleExport = useCallback(async () => {
 		try {
-			const res = await axios.get(`${API_BASE}/income/downloadexcel`, {
+			const res = await axios.get(`${API_URL}/income/downloadexcel`, {
 				headers: getAuthHeaders(),
 				responseType: "blob",
 			});

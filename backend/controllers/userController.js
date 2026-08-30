@@ -152,7 +152,7 @@ export async function updateProfile(req, res) {
 			email,
 			_id: { $ne: req.user.id },
 		});
-		if (!exists) {
+		if (exists) {
 			return res.status(400).json({
 				success: false,
 				message: "Email address in use",
@@ -161,8 +161,8 @@ export async function updateProfile(req, res) {
 
 		const user = await userModel.findByIdAndUpdate(
 			req.user.id,
-			{ email, name },
-			{ new: true, runValidators: true, select: "name email" },
+			{ email: email?.toLowerCase().trim(), name },
+			{ returnDocument: 'after', runValidators: true, select: "name email" },
 		);
 
 		res.json({
@@ -181,7 +181,8 @@ export async function updateProfile(req, res) {
 // to change user password
 export async function updatePassword(req, res) {
 	const { currentPassword, newPassword } = req.body;
-	if (!currentPassword || !newPassword || !newPassword.length < 8) {
+	console.log(currentPassword, newPassword, newPassword.length < 8)
+	if (!currentPassword || !newPassword || newPassword.length < 8) {
 		return res.status(400).json({
 			success: false,
 			message: "Password invalid or too short ",

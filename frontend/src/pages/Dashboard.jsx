@@ -40,7 +40,7 @@ import GaugeCard from "../components/GaugeCard";
 import { Cell, Legend, ResponsiveContainer, Pie, Tooltip } from "recharts";
 import AddTransactionModal from "../components/Add";
 
-const API_BASE = "http://localhost:4000/api";
+const API_URL = import.meta.env.VITE_API_URL
 
 const getAuthHeader = () => {
 	const token =
@@ -271,7 +271,7 @@ const Dashboard = () => {
 	const fecthDashboardOverview = async () => {
 		try {
 			setLoading(true);
-			const res = await axios.get(`${API_BASE}/dashboard`, {
+			const res = await axios.get(`${API_URL}/dashboard`, {
 				headers: getAuthHeader(),
 			});
 
@@ -380,11 +380,11 @@ const Dashboard = () => {
 		try {
 			setLoading(true);
 			if (newTransaction.type === "income") {
-				await axios.post(`${API_BASE}/income/add`, payload, {
+				await axios.post(`${API_URL}/income/add`, payload, {
 					headers: getAuthHeader(),
 				});
 			} else {
-				await axios.post(`${API_BASE}/expense/add`, payload, {
+				await axios.post(`${API_URL}/expense/add`, payload, {
 					headers: getAuthHeader(),
 				});
 			}
