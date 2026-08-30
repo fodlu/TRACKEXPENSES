@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+p, a, button, div{
+  font-size: 1.2rem;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
